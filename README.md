@@ -1,147 +1,113 @@
-# 🧠 AG News Textklassifikation mit OpenAI API
+# 🧠 AG News Textklassifikation mit OpenAI (ChatGPT Style GUI)
 
-Dieses Projekt implementiert eine REST-API zur Klassifikation von Nachrichtentexten basierend auf dem **AG News Dataset**. Die Klassifikation erfolgt wahlweise mit einem lokalen LLM oder – wie in dieser Umsetzung – mit der **OpenAI API** (`gpt-3.5-turbo`).
+Dieses Projekt stellt eine REST-API bereit, die Nachrichtenartikel aus dem **AG News Dataset** mit Hilfe der **OpenAI API (GPT-3.5)** automatisch in vier Kategorien klassifiziert:
+
+- 🌍 World
+- 🏦 Business
+- ⚽ Sports
+- 🧪 Science/Technology
+
+Zusätzlich enthält das Projekt eine benutzerfreundliche **GUI im ChatGPT-Stil** zur direkten Klassifikation im Browser.
 
 ---
 
 ## 🚀 Features
 
-- Klassifikation in 4 Kategorien:
-  - 🌍 World
-  - 🏦 Business
-  - 🧪 Science/Technology
-  - ⚽ Sports
-- OpenAI-gestütztes Modell (ChatGPT)
-- REST-API via Flask (`/predict`)
-- Docker-ready ✅
-- `.env`-basiertes API-Key-Handling 🔐
-- Integrierter AG News Evaluation-Test
-- CI-ready für GitHub Actions
+- ✅ REST-API mit Flask
+- ✅ OpenAI GPT-3.5 Klassifikation
+- ✅ GUI (HTML/JS) mit AG News Random Sample & Live-Feedback
+- ✅ Evaluation-Skript mit AG News Testdaten
+- ✅ Docker-Container & GitHub Actions CI/CD Pipeline
 
 ---
 
-## 📦 Projektstruktur
+## 📁 Projektstruktur
 
 ```
 tinyllm-api/
 ├── app/
-│   ├── main.py               ← Flask REST-API
-│   ├── model_handler.py      ← OpenAI-Anbindung
-│   ├── test_with_dataset.py ← Evaluation mit AG News
-│   └── requirements.txt
-├── .env                      ← OpenAI API Key
+│   ├── main.py               # Flask-API mit /predict, /random, /gui, /
+│   ├── model_handler.py      # OpenAI-Klassifikation
+│   ├── test_with_dataset.py  # Evaluation mit AG News
+│   ├── gui.html              # Interaktive Klassifikations-GUI
+│   └── index.html            # Landing Page
+├── requirements.txt
 ├── Dockerfile
-└── README.md
+├── VERSION
+├── .env                      # Enthält OPENAI_API_KEY (nicht committen!)
+└── .github/workflows/
+    └── docker-build.yml      # CI/CD Pipeline für Build & Test
 ```
 
 ---
 
-## 🛠️ Setup
+## 🧪 Endpunkte der REST-API
 
-### 🔹 Lokale Installation
-
-```bash
-git clone https://github.com/dein-benutzername/tinyllm-api.git
-cd tinyllm-api
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r app/requirements.txt
-```
-
-### 🔹 `.env` Datei erstellen
-
-```env
-OPENAI_API_KEY=sk-...
-```
-
----
-
-## 🧪 API testen
-
-### ▶️ Starten
-
-```bash
-python app/main.py
-```
-
-### 🔄 Request
-
-```bash
-curl -X POST http://localhost:5050/predict   -H "Content-Type: application/json"   -d '{"text": "Apple releases a new AI chip for MacBooks."}'
-```
-
-### 🔁 Beispielantwort
-
-```json
-{
-  "category": "Science/Technology",
-  "input": "Apple releases a new AI chip for MacBooks."
-}
-```
-
----
-
-## 📊 AG News Test
-
-```bash
-python app/test_with_dataset.py
-```
-
-Gibt 5–10 Beispielartikel aus dem AG News Testset aus und vergleicht Klassifikation mit Ground Truth. (Accuracy ~90 % mit GPT-3.5)
+| Route         | Beschreibung                             |
+|---------------|-------------------------------------------|
+| `/predict`    | POST: JSON mit `{ "text": "..." }` → Klassifikation |
+| `/random`     | GET: Zufälliger AG News Artikel aus Testdaten |
+| `/gui`        | Interaktive Web-GUI im ChatGPT-Stil       |
+| `/`           | Landing Page mit Button zur GUI           |
 
 ---
 
 ## 🐳 Docker
 
-### 🔹 Build
+### Build & Run lokal
 
 ```bash
-docker build -t textclassifier-openai .
+docker build -t textclassifier-openai:$(cat VERSION) .
+docker run -p 5050:5050 -e OPENAI_API_KEY=sk-... textclassifier-openai:$(cat VERSION)
 ```
 
-### 🔹 Run
+Dann öffnen: [http://localhost:5050/gui](http://localhost:5050/gui)
+
+---
+
+## 🔁 Evaluation mit AG News Testdaten
 
 ```bash
-docker run -p 5050:5050 -e OPENAI_API_KEY=sk-... textclassifier-openai
+docker run --rm -e OPENAI_API_KEY=sk-... textclassifier-openai:$(cat VERSION) python test_with_dataset.py
 ```
 
 ---
 
-## 🧪 GitHub Actions (optional)
+## 🧪 GitHub Actions (CI/CD)
 
-`.github/workflows/docker-build.yml`:
+Bei jedem Push auf `main` wird automatisch:
 
-```yaml
-name: Docker Build
+1. Die Version gelesen (`VERSION`)
+2. Das Docker-Image gebaut
+3. `test_with_dataset.py` im Container ausgeführt
 
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: docker build -t textclassifier-openai .
-```
+Datei: `.github/workflows/docker-build.yml`
 
 ---
 
-## 📚 Quellen
+## 🛠️ Lokales Setup (nur bei Entwicklung)
 
-- [AG News Dataset (Huggingface)](https://huggingface.co/datasets/ag_news)
-- [OpenAI API Docs](https://platform.openai.com/docs/)
-- [Flask](https://flask.palletsprojects.com/)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r app/requirements.txt
+python app/main.py
+```
+
+.env Datei:
+
+```
+OPENAI_API_KEY=sk-...
+```
 
 ---
 
 ## 🧾 Lizenz
 
-MIT License – frei nutzbar mit Angabe.
+MIT License – frei nutzbar mit Quellverweis.
 
 ---
 
-## ✨ Autor
+## 👨‍💻 Autor
 
-> Erstellt von [Laurenziu B.] – im Rahmen einer Übungsaufgabe zur LLM-gestützten Textklassifikation mit Python, Flask und OpenAI.
+Erstellt von [Laurenziu B.] im Rahmen einer Übungsaufgabe zu LLM-gestützter Textklassifikation.
