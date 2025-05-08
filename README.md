@@ -1,4 +1,4 @@
-# 🧠 AG News Textklassifikation mit OpenAI (ChatGPT Style GUI)
+# 🧠 AG News Textklassifikation mit OpenAI
 
 Dieses Projekt stellt eine REST-API bereit, die Nachrichtenartikel aus dem **AG News Dataset** mit Hilfe der **OpenAI API (GPT-3.5)** automatisch in vier Kategorien klassifiziert:
 
@@ -7,7 +7,7 @@ Dieses Projekt stellt eine REST-API bereit, die Nachrichtenartikel aus dem **AG 
 - ⚽ Sports
 - 🧪 Science/Technology
 
-Zusätzlich enthält das Projekt eine benutzerfreundliche **GUI im ChatGPT-Stil** zur direkten Klassifikation im Browser.
+Zusätzlich enthält das Projekt eine benutzerfreundliche **GUI** zur direkten Klassifikation im Browser.
 
 ---
 
