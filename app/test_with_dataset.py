@@ -1,10 +1,9 @@
+# Evaluation-Skript: Nutzt echte AG News Testdaten
 from datasets import load_dataset
 from model_handler import classify_text
 
-# Lade AG News
 dataset = load_dataset("ag_news", split="test[:10]")  # kleine Stichprobe
 
-# Kategorie-IDs → Namen
 id2label = {
     0: "World",
     1: "Sports",
@@ -12,7 +11,6 @@ id2label = {
     3: "Science/Technology"
 }
 
-# Auswerten
 correct = 0
 total = 0
 

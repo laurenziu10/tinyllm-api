@@ -1,3 +1,4 @@
+# Flask REST-API für AG News Klassifikation mit OpenAI
 from flask import Flask, request, jsonify, send_from_directory
 from model_handler import classify_text
 import os
@@ -6,6 +7,7 @@ import random
 
 app = Flask(__name__)
 
+# POST /predict: JSON-Eingabe mit "text", Rückgabe der Vorhersage-Kategorie
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
@@ -19,14 +21,17 @@ def predict():
         "input": text
     })
 
+# GET /gui: Lade die interaktive GUI (HTML)
 @app.route("/gui")
 def gui():
     return send_from_directory(os.path.dirname(__file__), "gui.html")
 
+# GET /: Landing Page
 @app.route("/")
 def index():
     return send_from_directory(os.path.dirname(__file__), "index.html")
 
+# GET /random: Liefert einen zufälligen AG News Artikel (Test-Set)
 @app.route("/random")
 def random_sample():
     dataset = load_dataset("ag_news", split="test")
@@ -36,5 +41,6 @@ def random_sample():
         "label": sample["label"]
     })
 
+# Lokaler Startpunkt
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5050)

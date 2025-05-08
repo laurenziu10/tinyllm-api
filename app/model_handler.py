@@ -1,18 +1,19 @@
+# OpenAI-basiertes Klassifikationsmodul für AG News
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# 🔹 Lade Umgebungsvariablen aus .env-Datei
+# 🔹 Lade API-Key aus .env-Datei
 load_dotenv()
 
-# 🔹 Initialisiere OpenAI-Client mit API-Key
+# 🔹 Initialisiere Client mit API-Key
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# 🔹 Erlaubte Klassifikationskategorien
+# 🔹 Gültige Klassenzuordnungen
 VALID_CATEGORIES = ["World", "Business", "Sports", "Science/Technology"]
 
 def classify_text(text: str) -> str:
-    # Prompt für GPT
+    # Prompt für Klassifikation
     prompt = (
         "Classify the following news article into one of the following categories:\n"
         "World, Business, Sports, Science/Technology.\n\n"
@@ -21,7 +22,7 @@ def classify_text(text: str) -> str:
     )
 
     try:
-        # API-Call an GPT
+        # Anfrage an GPT
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
@@ -29,10 +30,9 @@ def classify_text(text: str) -> str:
             temperature=0
         )
 
-        # Ausgabe verarbeiten
         output = response.choices[0].message.content.strip()
 
-        # Match gegen erlaubte Kategorien
+        # Kategorievalidierung
         for category in VALID_CATEGORIES:
             if category.lower() in output.lower():
                 return category

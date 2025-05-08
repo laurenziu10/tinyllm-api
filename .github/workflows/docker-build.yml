@@ -1,3 +1,4 @@
+# GitHub Actions CI/CD Workflow: Baut Docker-Image bei jedem Push auf den main-Branch
 name: Build & Test Docker Image
 
 on:
