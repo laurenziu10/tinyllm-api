@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AG News ChatGPT-Klassifikator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f5f5;
+      padding: 30px;
+      color: #333;
+      max-width: 800px;
+      margin: auto;
+    }
+    .chatbox {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-size: 1em;
+      resize: vertical;
+    }
+    button {
+      background: #10a37f;
+      color: white;
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0e8f71;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+    .title {
+      margin-bottom: 20px;
+    }
+    .label-box {
+      margin-bottom: 10px;
+      font-style: italic;
+      color: #666;
+    }
+    .feedback {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .correct { color: green; }
+    .wrong { color: red; }
+  </style>
+</head>
+<body>
+
+  <div class="chatbox">
+    <h2 class="title">🧠 AG News Klassifikation (ChatGPT Style)</h2>
+
+    <div class="label-box" id="labelBox">(Ground Truth wird angezeigt nach Laden)</div>
+
+    <textarea id="inputText">Bitte zuerst auf „Zufälligen Text laden“ klicken.</textarea>
+    <br><br>
+    <button onclick="loadRandom()">🎲 Zufälligen Text laden</button>
+    <button onclick="classify()">🚀 Klassifizieren</button>
+
+    <div id="feedback" class="feedback"></div>
+    <pre id="result">{}</pre>
+  </div>
+
+  <script>
+    const id2label = {
+      0: "World",
+      1: "Sports",
+      2: "Business",
+      3: "Science/Technology"
+    };
+
+    let currentLabel = null;  // Merkt sich Ground Truth für Vergleich
+
+    async function loadRandom() {
+      const response = await fetch("/random");
+      const json = await response.json();
+      document.getElementById("inputText").value = json.text;
+      document.getElementById("labelBox").innerText = "(Ground Truth: " + id2label[json.label] + ")";
+      currentLabel = id2label[json.label];  // Merken für später
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("result").textContent = "{}";
+    }
+
+    async function classify() {
+      const text = document.getElementById("inputText").value;
+
+      const response = await fetch("/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+
+      const json = await response.json();
+      document.getElementById("result").textContent = JSON.stringify(json, null, 2);
+
+      if (currentLabel) {
+        const predicted = json.category;
+        if (predicted.toLowerCase() === currentLabel.toLowerCase()) {
+          document.getElementById("feedback").innerHTML = "✅ Richtig erkannt!";
+          document.getElementById("feedback").className = "feedback correct";
+        } else {
+          document.getElementById("feedback").innerHTML = "❌ Falsch. Erwartet war: " + currentLabel;
+          document.getElementById("feedback").className = "feedback wrong";
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
