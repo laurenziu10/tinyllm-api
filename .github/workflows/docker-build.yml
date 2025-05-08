@@ -1,4 +1,3 @@
-# GitHub Actions CI/CD Workflow: Baut Docker-Image bei jedem Push auf den main-Branch
 name: Build & Test Docker Image
 
 on:
@@ -21,10 +20,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image with version tag
+      - name: 🔨 Build Docker image with version tag
         run: |
           docker build -t textclassifier-openai:${{ steps.version.outputs.VERSION }} .
 
-      - name: Run AG News Test
+      - name: Run AG News Test in Docker with OpenAI API Key
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          docker run --rm textclassifier-openai:${{ steps.version.outputs.VERSION }} python test_with_dataset.py
+          docker run --rm \
+            -e OPENAI_API_KEY=$OPENAI_API_KEY \
+            textclassifier-openai:${{ steps.version.outputs.VERSION }} \
+            python test_with_dataset.py
