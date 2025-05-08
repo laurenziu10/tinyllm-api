@@ -1,0 +1,29 @@
+name: Build & Test Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Read version from VERSION file
+        id: version
+        run: echo "VERSION=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image with version tag
+        run: |
+          docker build -t textclassifier-openai:${{ steps.version.outputs.VERSION }} .
+
+      - name: Run AG News Test
+        run: |
+          docker run --rm textclassifier-openai:${{ steps.version.outputs.VERSION }} python test_with_dataset.py

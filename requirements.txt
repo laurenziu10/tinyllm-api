@@ -1,0 +1,8 @@
+flask
+transformers
+torch
+protobuf 
+sentencepiece
+openai
+python-dotenv
+datasets
